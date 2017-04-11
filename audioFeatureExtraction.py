@@ -203,7 +203,7 @@ def mfccInitFilterBanks(fs, nfft):
     fbank = numpy.zeros((nFiltTotal, nfft))
     nfreqs = numpy.arange(nfft) / (1. * nfft) * fs
 
-    for i in range(nFiltTotal):
+    for i in range(0,nFiltTotal):
         lowTrFreq = freqs[i]
         cenTrFreq = freqs[i+1]
         highTrFreq = freqs[i+2]
@@ -241,7 +241,7 @@ def stChromaFeaturesInit(nfft, fs):
     """
     This function initializes the chroma matrices used in the calculation of the chroma features
     """
-    freqs = numpy.array([((f + 1) * fs) / (2 * nfft) for f in range(nfft)])    
+    freqs = numpy.array([((f + 1) * fs) / (2 * nfft) for f in range(int(nfft))])
     Cp = 27.50    
     nChroma = numpy.round(12.0 * numpy.log2(freqs / Cp)).astype(int)
 
@@ -730,7 +730,7 @@ def dirWavFeatureExtraction(dirName, mtWin, mtStep, stWin, stStep, computeBEAT=F
     wavFilesList = sorted(wavFilesList)    
 
     for i, wavFile in enumerate(wavFilesList):        
-        print("Analyzing file {0:d} of {1:d}: {2:s}").format(i+1, len(wavFilesList), wavFile.encode('utf-8'))
+        print("Analyzing file {} of {}: {}".format(i+1, len(wavFilesList), wavFile.encode('utf-8')))
         if os.stat(wavFile).st_size == 0:
             print("   (EMPTY FILE -- SKIPPING)")
             continue        
@@ -759,7 +759,7 @@ def dirWavFeatureExtraction(dirName, mtWin, mtStep, stWin, stStep, computeBEAT=F
         duration = float(len(x)) / Fs
         processingTimes.append((t2 - t1) / duration)
     if len(processingTimes) > 0:
-        print("Feature extraction complexity ratio: {0:.1f} x realtime").format((1.0 / numpy.mean(numpy.array(processingTimes))))
+        print("Feature extraction complexity ratio: {0:.1f} x realtime".format((1.0 / numpy.mean(numpy.array(processingTimes)))))
     return (allMtFeatures, wavFilesList)
 
 
