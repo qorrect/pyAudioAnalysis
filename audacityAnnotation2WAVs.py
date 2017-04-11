@@ -42,7 +42,7 @@ def main(argv):
             if not os.path.isfile(wavFile):
                 wavFile = os.path.splitext(anFile)[0] + ".mp3"
                 if not os.path.isfile(wavFile):
-                    print "Audio file not found!"
+                    print("Audio file not found!")
                     return
             annotation2files(wavFile, anFile)
 

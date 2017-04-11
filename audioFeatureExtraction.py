@@ -3,7 +3,6 @@ import time
 import os
 import glob
 import numpy
-import cPickle
 import aifc
 import math
 from numpy import NaN, Inf, arange, isscalar, array
@@ -293,6 +292,10 @@ def stChromaFeatures(X, fs, nChroma, nFreqsPerChroma):
 #    plt.draw()
 
     return chromaNames, finalC
+def frange(x, y, jump):
+    while x < y:
+        yield x
+        x += jump
 
 
 def stChromagram(signal, Fs, Win, Step, PLOT=False):
@@ -353,7 +356,7 @@ def stChromagram(signal, Fs, Win, Step, PLOT=False):
         ax.set_yticks(range(Ratio / 2, len(FreqAxis) * Ratio, Ratio))
         ax.set_yticklabels(FreqAxis[::-1])
         TStep = countFrames / 3
-        TimeTicks = range(0, countFrames, TStep)
+        TimeTicks = frange(0, countFrames, TStep)
         TimeTicksLabels = ['%.2f' % (float(t * Step) / Fs) for t in TimeTicks]
         ax.set_xticks(TimeTicks)
         ax.set_xticklabels(TimeTicksLabels)
@@ -500,9 +503,9 @@ def stSpectogram(signal, Fs, Win, Step, PLOT=False):
         ax.set_yticks(FreqTicks)
         ax.set_yticklabels(FreqTicksLabels)
         TStep = countFrames/3
-        TimeTicks = range(0, countFrames, TStep)
+        TimeTicks = frange(0, countFrames, TStep)
         TimeTicksLabels = ['%.2f' % (float(t * Step) / Fs) for t in TimeTicks]
-        ax.set_xticks(TimeTicks)
+        #ax.set_xticks(TimeTicks)
         ax.set_xticklabels(TimeTicksLabels)
         ax.set_xlabel('time (secs)')
         ax.set_ylabel('freq (Hz)')
@@ -727,15 +730,15 @@ def dirWavFeatureExtraction(dirName, mtWin, mtStep, stWin, stStep, computeBEAT=F
     wavFilesList = sorted(wavFilesList)    
 
     for i, wavFile in enumerate(wavFilesList):        
-        print "Analyzing file {0:d} of {1:d}: {2:s}".format(i+1, len(wavFilesList), wavFile.encode('utf-8'))
+        print("Analyzing file {0:d} of {1:d}: {2:s}").format(i+1, len(wavFilesList), wavFile.encode('utf-8'))
         if os.stat(wavFile).st_size == 0:
-            print "   (EMPTY FILE -- SKIPPING)"
+            print("   (EMPTY FILE -- SKIPPING)")
             continue        
         [Fs, x] = audioBasicIO.readAudioFile(wavFile)            # read file                
         t1 = time.clock()        
         x = audioBasicIO.stereo2mono(x)                          # convert stereo to mono                
         if x.shape[0]<float(Fs)/10:
-            print "  (AUDIO FILE TOO SMALL - SKIPPING)"
+            print("  (AUDIO FILE TOO SMALL - SKIPPING)")
             continue
         if computeBEAT:                                          # mid-term feature extraction for current file
             [MidTermFeatures, stFeatures] = mtFeatureExtraction(x, Fs, round(mtWin * Fs), round(mtStep * Fs), round(Fs * stWin), round(Fs * stStep))
@@ -756,7 +759,7 @@ def dirWavFeatureExtraction(dirName, mtWin, mtStep, stWin, stStep, computeBEAT=F
         duration = float(len(x)) / Fs
         processingTimes.append((t2 - t1) / duration)
     if len(processingTimes) > 0:
-        print "Feature extraction complexity ratio: {0:.1f} x realtime".format((1.0 / numpy.mean(numpy.array(processingTimes))))
+        print("Feature extraction complexity ratio: {0:.1f} x realtime").format((1.0 / numpy.mean(numpy.array(processingTimes))))
     return (allMtFeatures, wavFilesList)
 
 
@@ -854,20 +857,20 @@ def mtFeatureExtractionToFile(fileName, midTermSize, midTermStep, shortTermSize,
 
     numpy.save(outPutFile, mtF)                              # save mt features to numpy file
     if PLOT:
-        print "Mid-term numpy file: " + outPutFile + ".npy saved"
+        print("Mid-term numpy file: ") + outPutFile + ".npy saved"
     if storeToCSV:
         numpy.savetxt(outPutFile+".csv", mtF.T, delimiter=",")
         if PLOT:
-            print "Mid-term CSV file: " + outPutFile + ".csv saved"
+            print("Mid-term CSV file: ") + outPutFile + ".csv saved"
 
     if storeStFeatures:
         numpy.save(outPutFile+"_st", stF)                    # save st features to numpy file
         if PLOT:
-            print "Short-term numpy file: " + outPutFile + "_st.npy saved"
+            print("Short-term numpy file: ") + outPutFile + "_st.npy saved"
         if storeToCSV:
             numpy.savetxt(outPutFile+"_st.csv", stF.T, delimiter=",")    # store st features to CSV file
             if PLOT:
-                print "Short-term CSV file: " + outPutFile + "_st.csv saved"
+                print("Short-term CSV file: ") + outPutFile + "_st.csv saved"
 
 
 def mtFeatureExtractionToFileDir(dirName, midTermSize, midTermStep, shortTermSize, shortTermStep, storeStFeatures=False, storeToCSV=False, PLOT=False):
